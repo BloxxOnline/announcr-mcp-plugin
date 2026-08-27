@@ -1,0 +1,14 @@
+{
+  "name": "announcr",
+  "owner": {
+    "name": "Announcr",
+    "url": "https://announcr.fm"
+  },
+  "plugins": [
+    {
+      "name": "announcr",
+      "source": "./",
+      "description": "Voice announcements for your agents — hear builds, deploys, and finished tasks spoken out loud on your devices."
+    }
+  ]
+}

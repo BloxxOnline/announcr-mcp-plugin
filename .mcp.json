@@ -1,12 +1,12 @@
 {
-    "mcpServers": {
-      "announcr": {
-        "command": "npx",
-        "args": ["-y", "@announcr/mcp"],
-        "env": {
-          "ANNOUNCR_WEBHOOK_PUBLIC_ID": "${ANNOUNCR_WEBHOOK_PUBLIC_ID}",
-          "ANNOUNCR_WEBHOOK_SECRET": "${ANNOUNCR_WEBHOOK_SECRET}"
-        }
+  "mcpServers": {
+    "announcr": {
+      "command": "npx",
+      "args": ["-y", "@announcr/mcp"],
+      "env": {
+        "ANNOUNCR_WEBHOOK_URL": "${ANNOUNCR_WEBHOOK_URL}",
+        "ANNOUNCR_WEBHOOK_SECRET": "${ANNOUNCR_WEBHOOK_SECRET}"
       }
     }
   }
+}

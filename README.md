@@ -1,33 +1,19 @@
-# Announcr MCP Plugin
+# Announcr — voice announcements for your agents
 
-Lets Grok (and any MCP client) push spoken announcements into [Announcr](https://announcr.fm).
+[Announcr](https://announcr.fm) turns short text announcements into spoken audio on your devices. This plugin gives any AI agent a voice: when a long build finishes, a deploy goes live, or a task needs your attention, the agent announces it out loud instead of waiting for you to check back.
 
-The announcement is turned into TTS audio and delivered to the user’s devices / ambient speakers.
+## Components
 
-## Setup
+- **1 skill — `announce`** ([skills/announce/SKILL.md](skills/announce/SKILL.md)): teaches the agent *when* to announce (task finished, blocked on your input, error halted progress, or you asked) and *how* to write for the ear.
+- **1 hosted MCP server** — `https://announcr.fm/api/mcp` (Streamable HTTP, OAuth sign-in), declared in [mcp.json](mcp.json).
 
-1. Create a **webhook endpoint** in the Announcr UI and copy the `publicId` + one-time secret.
-2. Under **What to hear**, subscribe to:
-   - **Service**: `mcp`
-   - **Event**: leave blank or `announce`
-3. Set the two environment variables (never put the secret in the model context):
+## Tools
 
-```bash
-export ANNOUNCR_WEBHOOK_PUBLIC_ID=your_public_id
-export ANNOUNCR_WEBHOOK_SECRET=your_secret
-```
-
-4. Install / enable this plugin (or add it as a custom MCP connector).
-
-## Tool
-
-### `send_announcement`
-
-| Argument  | Required | Default     | Description                                      |
-|-----------|----------|-------------|--------------------------------------------------|
-| `message` | yes      | —           | Text that will be spoken (max 500 characters)    |
-| `event`   | no       | `"announce"`| Event name used for subscription matching        |
-| `service` | no       | `"mcp"`     | Service/app label (lets one webhook multiplex)   |
+| Tool | Argument | Required | Default | Description |
+|---|---|---|---|---|
+| `send_announcement` | `message` | yes | — | Text that will be spoken (max 500 characters) |
+| | `event` | no | `"announce"` | Event name used for subscription matching |
+| | `service` | no | `"mcp"` | Service/app label (lets one webhook multiplex) |
 
 Example call:
 
@@ -40,36 +26,70 @@ Example call:
 }
 ```
 
-## How it works
+## Install
 
-The server signs every request with the same HMAC-SHA256 scheme the Announcr gateway expects (`x-announcr-timestamp` + `x-announcr-signature`) and POSTs to `/hooks/in/{publicId}`.
+### Cursor
 
-## Publishing `@announcr/mcp` to npm
+- **Marketplace**: search for **announcr** in the Cursor Marketplace and install (once listed).
+- **One click**: your webhook page at [announcr.fm](https://announcr.fm) → Webhooks has an **Add to Cursor** button.
+- **Manual**: in Cursor's MCP settings, add a server with URL `https://announcr.fm/api/mcp`.
 
-This plugin launches the server with `npx -y @announcr/mcp`. The package must be published before the plugin will work for other users.
+### Claude Code
 
-From the Announcr monorepo root (after the MCP package is on `main`):
-
-```bash
-# 1. Build the package
-pnpm --filter @announcr/mcp build
-
-# 2. Log in to npm (one-time)
-npm login
-
-# 3. Publish (scoped package must be public)
-cd packages/mcp
-npm publish --access public
+```
+/plugin marketplace add BloxxOnline/announcr-mcp-plugin
 ```
 
-Notes:
-- You need an npm account that owns (or can create) the `@announcr` scope.
-- If the scope is not available, publish under your personal scope instead (e.g. `@daveyoung74/announcr-mcp`) and update `.mcp.json` accordingly.
-- After publishing, verify with:
+Then install **announcr** from the plugin list (`/plugin`).
+
+### Grok Build
+
+Grok Build reads Claude Code marketplaces automatically — add this repo (`BloxxOnline/announcr-mcp-plugin`) as a marketplace and the plugin appears.
+
+### Grok chat / Grok Bot
+
+Open [grok.com/connectors](https://grok.com/connectors) → **New Connector** → **Custom** and paste `https://announcr.fm/api/mcp`.
+
+### Skills CLI
+
+Install just the skill (agent instructions + CLI fallback, no MCP connection needed):
 
 ```bash
-npx -y @announcr/mcp --help   # or just run it; it should start the stdio server
+npx skills add BloxxOnline/announcr-mcp-plugin
 ```
+
+### Any other MCP host
+
+Point it at `https://announcr.fm/api/mcp`. Hosts without OAuth support can send the header `Authorization: Bearer <webhook-secret>` — get the secret from [announcr.fm](https://announcr.fm) → Webhooks.
+
+## Authentication
+
+After installing, the server shows as needing sign-in ("Needs login" in Cursor; Grok opens a sign-in window). Click it, sign in at announcr.fm, and pick which webhook "voice" the agent speaks through. That's it — no keys to paste.
+
+- Hosts without OAuth support can use the bearer header instead: `Authorization: Bearer <webhook-secret>`.
+- `?secret=` URLs still work for existing connectors but are deprecated — prefer OAuth sign-in or the bearer header.
+
+## Privacy & data handling
+
+- The plugin sends **only the announcement text** you or your agent compose (max 500 characters) to Announcr, where it becomes speech on **your** devices.
+- It never reads your code, files, or repository.
+- The credential is scoped to speaking announcements only — it cannot read account data.
+- Revoke access anytime at announcr.fm → **Webhooks** (rotate or revoke the webhook) or **Settings → Connected apps**.
+
+## Local development
+
+Symlink the repo into Cursor's local plugins directory and reload:
+
+```bash
+ln -s "$(pwd)" ~/.cursor/plugins/local/announcr
+```
+
+Then run **Developer: Reload Window** in Cursor. This repo is the canonical home of the `announce` skill — the Announcr monorepo references it.
+
+## Support
+
+- Feedback: https://announcr.fm/feedback
+- Docs: https://announcr.fm/docs/ai-agents
 
 ## License
 

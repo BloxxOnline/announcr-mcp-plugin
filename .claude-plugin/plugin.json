@@ -1,7 +1,5 @@
 {
-  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "announcr",
-  "displayName": "Announcr",
   "description": "Voice announcements for your agents — hear builds, deploys, and finished tasks spoken out loud on your devices.",
   "version": "1.0.0",
   "author": {
@@ -10,20 +8,5 @@
   "homepage": "https://announcr.fm",
   "repository": "https://github.com/BloxxOnline/announcr-mcp-plugin",
   "license": "MIT",
-  "logo": "./assets/logo.png",
-  "category": "integrations",
-  "keywords": [
-    "announcr",
-    "voice",
-    "announcements",
-    "notifications",
-    "tts",
-    "text-to-speech",
-    "audio",
-    "alerts",
-    "speak",
-    "agent-notifications",
-    "mcp"
-  ],
   "mcpServers": "./mcp.json"
 }
