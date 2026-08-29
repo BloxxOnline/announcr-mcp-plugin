@@ -2,7 +2,10 @@
   "mcpServers": {
     "announcr": {
       "type": "http",
-      "url": "https://announcr.fm/api/mcp"
+      "url": "https://announcr.fm/api/mcp",
+      "auth": {
+        "scopes": ["announce", "queue", "reminders"]
+      }
     }
   }
 }

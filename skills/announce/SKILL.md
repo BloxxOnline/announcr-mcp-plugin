@@ -5,7 +5,7 @@ when-to-use: Announce out loud when a long build/test/deploy/research task finis
 license: MIT
 metadata:
   author: Announcr
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Announcr — speak to the user out loud
@@ -18,8 +18,8 @@ metadata:
 
 ### Preferred: the `send_announcement` MCP tool
 
-This plugin connects an MCP server (`https://announcr.fm/api/mcp`) exposing one
-tool, `send_announcement`. Call it with just the message:
+This plugin connects an MCP server (`https://announcr.fm/api/mcp`). For speaking,
+use `send_announcement` with just the message:
 
 ```json
 {"message": "The deploy finished and all checks passed."}
@@ -119,6 +119,14 @@ The message is read aloud by text-to-speech — write for the ear:
 | `409 replay` | Identical signed request re-sent | Already delivered once — do not resend |
 | `400 invalid_body` | Malformed JSON or field limits | Fix the body; `message` ≤ 500 chars, `event`/`service` `[\w.-]+` |
 | Accepted but user hears nothing | Their webhook's listening filter excludes this event, or their audio is off | Ask them to set the webhook's listening to **Everything** and check audio is enabled on an open Announcr tab or the desktop app |
+
+## Related tools on the same server
+
+`send_announcement` does not read the account. Queue pull and reminder write are
+separate tools (`list_queue`, `claim_item`, `ack_item`, `create_reminder`, and
+the other reminder tools). Use those only when the user asks, and only when the
+grant includes `queue` or `reminders`. A webhook-secret connection cannot use
+them.
 
 ## More
 

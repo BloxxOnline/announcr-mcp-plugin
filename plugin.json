@@ -2,8 +2,8 @@
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "announcr",
   "displayName": "Announcr",
-  "description": "Voice announcements for your agents — hear builds, deploys, and finished tasks spoken out loud on your devices.",
-  "version": "1.0.0",
+  "description": "Voice announcements, an agent queue, and reminders for your agents. Hear builds and finished tasks out loud, pull work queued for this voice, and manage Announcr reminders.",
+  "version": "1.1.0",
   "author": {
     "name": "Announcr"
   },
@@ -16,6 +16,8 @@
     "announcr",
     "voice",
     "announcements",
+    "queue",
+    "reminders",
     "notifications",
     "tts",
     "text-to-speech",
