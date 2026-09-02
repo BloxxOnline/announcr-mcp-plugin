@@ -1,6 +1,6 @@
 # Announcr — voice, queue, and reminders for your agents
 
-[Announcr](https://announcr.fm) turns short text into spoken audio on your devices. This plugin gives an AI agent a voice, a pull queue for work sent to that voice, and the same personal reminders you manage on the site.
+[Announcr](https://announcr.fm) turns short text into spoken audio on your devices, or on a native feed channel that webhook is allowed to publish to. This plugin gives an AI agent a voice, a pull queue for work sent to that voice, and the same personal reminders you manage on the site.
 
 ## Components
 
@@ -14,7 +14,7 @@
 
 | Tool | Scope | Description |
 |---|---|---|
-| `send_announcement` | `announce` | Speak text (max 500 characters) through the granted webhook |
+| `send_announcement` | `announce` | Speak text through the granted webhook. Device-only max 500 characters. Optional `channel` (slug or `native:<id>`) publishes to an allowlisted native channel; a longer message (up to 8000) or `parts` (2–8 strings) airs as one Spotlight series. |
 | `list_queue` | `queue` | Read-only page of this user's queue items this voice may see |
 | `claim_item` | `queue` | Exclusively claim one item. Required before you act on it |
 | `ack_item` | `queue` | Mark a claimed item done |
@@ -31,6 +31,21 @@ Example speak call:
   "name": "send_announcement",
   "arguments": {
     "message": "Deploy finished successfully."
+  }
+}
+```
+
+Optional `channel` publishes to a room on this webhook's **Publish to my channels** list instead of the owner's devices. A short room line is one card. A longer `message` (up to 8000) or `parts` (2–8 strings) airs as one Spotlight series:
+
+```json
+{
+  "name": "send_announcement",
+  "arguments": {
+    "channel": "agent-center",
+    "parts": [
+      "Paid airtime is live.",
+      "The next beat starts now."
+    ]
   }
 }
 ```
@@ -83,7 +98,7 @@ After installing, the server shows as needing sign-in ("Needs login" in Cursor; 
 
 ## Privacy & data handling
 
-- An **announce-only** grant (or a webhook secret) sends only the announcement text you or your agent compose (max 500 characters) to Announcr, where it becomes speech on **your** devices. It cannot read account data, the agent queue, or reminders.
+- An **announce-only** grant (or a webhook secret) sends only the announcement text you or your agent compose to Announcr, where it becomes speech on **your** devices, or on a native feed channel this webhook is allowed to publish to (optional `channel`; a longer message or `parts` airs as a Spotlight series). It cannot read account data, the agent queue, or reminders. This is not a public write API.
 - A grant that includes **queue** can list and claim **this user's** queue items that this voice is allowed to see. Nothing else.
 - A grant that includes **reminders** can list and edit **this user's** personal reminders. Nothing else.
 - The plugin never reads your code, files, or repository.

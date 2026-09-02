@@ -12,7 +12,9 @@ metadata:
 
 > Personal reminders live on announcr.fm. MCP writes the same rows the site
 > and voice create. After a successful create or update, Announcr speaks a
-> short canned line through this grant's webhook. Cancel is silent.
+> short canned line through this grant's webhook using the same `announce` /
+> `mcp` labels as `send_announcement`, so MCP-server listening plays the ack
+> with that webhook's personality and chimes. Cancel is silent.
 
 ## Tools
 
@@ -56,7 +58,8 @@ current row.
 
 Cap is 50 occupying reminders. On success, create speaks "Reminder created."
 or "Two reminders created." (through Ten). Update speaks "Reminder updated."
-Cancel does not speak.
+Those acks use event `announce` so they play on MCP-server listening with the
+webhook's background. Cancel does not speak.
 
 ## Errors
 

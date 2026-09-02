@@ -27,6 +27,12 @@ use `send_announcement` with just the message:
 
 - `event` and `service` are optional filtering labels — omit them unless the
   user has set up event filtering (defaults `announce` / `mcp`).
+- `channel` is optional. If this webhook is allowed to publish to a native
+  channel, pass the public slug (for example `agent-center`) or `native:<id>`.
+  A short room line is max 500 characters. Longer channel copy (up to 8000)
+  is packed into a Spotlight series, or send `parts` as 2–8 strings (each
+  max 900). Without `channel`, the line speaks on the owner's devices as usual
+  (or to the one allowlisted channel when that webhook has exactly one).
 - If the server shows as **needing login** or the tool returns unauthorized,
   tell the user to click **Needs login** (or reconnect the server) and sign in
   at announcr.fm. **Never ask the user to paste a secret into chat.**
@@ -44,6 +50,8 @@ npx -y @announcr/mcp say "Deploy to production finished."
 - Optional filtering labels: `--event <name>` and `--service <label>`
   (letters, numbers, `.` `-` `_`; defaults `announce` / `cli`). Omit them
   unless the user has set up event filtering.
+- Optional `--channel <slug>` to publish onto an allowlisted native channel
+  instead of the owner's devices.
 
 #### Credentials for the CLI
 
@@ -79,7 +87,8 @@ curl -sS -X POST "$ANNOUNCR_WEBHOOK_URL" \
 ```
 
 A `202` response with `{"accepted":true}` means it will be spoken. Optional
-body fields: `"event"` and `"service"` (same rules as the flags above).
+body fields: `"event"`, `"service"`, `"channel"`, and `"parts"` (2–8 strings
+for a channel series).
 
 ## When to announce
 
@@ -102,7 +111,9 @@ body fields: `"event"` and `"service"` (same rules as the flags above).
 
 The message is read aloud by text-to-speech — write for the ear:
 
-- One or two short, natural spoken sentences. Maximum 500 characters.
+- One or two short, natural spoken sentences. Device-only maximum 500
+  characters. A channel fire may pack a longer message (up to 8000) or use
+  `parts` (2–8 strings).
 - No URLs, no code, no markdown, no emoji, no secrets.
 - Say what happened and what it means, not the log line: prefer
   `"The deploy finished and all checks passed."` over
@@ -117,7 +128,13 @@ The message is read aloud by text-to-speech — write for the ear:
 | `401 missing_auth` / `bad_secret` | Wrong or missing secret (CLI/HTTP path) | Ask the user to re-copy both values from the webhook's page (they may have rotated the secret) |
 | `404 unknown_webhook` | URL wrong, or webhook revoked/parked | Ask the user to check the webhook on announcr.fm → Webhooks |
 | `409 replay` | Identical signed request re-sent | Already delivered once — do not resend |
-| `400 invalid_body` | Malformed JSON or field limits | Fix the body; `message` ≤ 500 chars, `event`/`service` `[\w.-]+` |
+| `400 invalid_body` | Malformed JSON or field limits | Fix the body; device-only `message` ≤ 500 chars, packed channel `message` ≤ 8000, `parts` 2–8 × ≤ 900, `event`/`service` `[\w.-]+` |
+| `400 sequence_requires_channel` | `parts` or a long packed message without a channel target | Pass `channel` or omit `parts` / shorten the message |
+| `400 parts_limit` | More than 8 spoken cards | Send fewer `parts` or a shorter message |
+| `400 channel_required` | Webhook allows more than one channel | Pass `channel` with one allowlisted slug |
+| `403 channel_forbidden` | Channel not on this webhook's allowlist | Use a slug from the webhook's Publish to my channels list |
+| `403 channel_unavailable` | Channel is a story, parked, or suspended | Do not retry as a device announcement |
+| `429` | Channel broadcast throttle | Wait `retryAfterMs` and retry |
 | Accepted but user hears nothing | Their webhook's listening filter excludes this event, or their audio is off | Ask them to set the webhook's listening to **Everything** and check audio is enabled on an open Announcr tab or the desktop app |
 
 ## Related tools on the same server
