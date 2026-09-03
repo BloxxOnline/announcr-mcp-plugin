@@ -4,8 +4,9 @@
 
 ## Components
 
-- **3 skills**
+- **4 skills**
   - [`announce`](skills/announce/SKILL.md): when to speak (task finished, blocked on your input, error halted progress, or you asked) and how to write for the ear.
+  - [`notes`](skills/notes/SKILL.md): when to save a note to this user's private Notes channel (`send_to_notes`). Not spoken status.
   - [`queue`](skills/queue/SKILL.md): when to list, claim, and ack items in this user's agent queue. Not email. Not an inbox.
   - [`reminders`](skills/reminders/SKILL.md): when to create, list, update, or cancel this user's Announcr reminders (the same rows as the site).
 - **1 hosted MCP server** — `https://announcr.fm/api/mcp` (Streamable HTTP, OAuth sign-in), declared in [mcp.json](mcp.json). The marketplace plugin requests one bundled grant: `announce queue reminders`.
@@ -15,6 +16,7 @@
 | Tool | Scope | Description |
 |---|---|---|
 | `send_announcement` | `announce` | Speak text through the granted webhook. Device-only max 500 characters. Optional `channel` (slug or `native:<id>`) publishes to an allowlisted native channel; a longer message (up to 8000) or `parts` (2–8 strings) airs as one Spotlight series. |
+| `send_to_notes` | `announce` | Save a note to this user's private Notes channel. Optional `title` (max 200) is spoken; the full `message` (max 8000) stays on the card. Not Publish to my channels. Hosted `/api/mcp` only. |
 | `list_queue` | `queue` | Read-only page of this user's queue items this voice may see |
 | `claim_item` | `queue` | Exclusively claim one item. Required before you act on it |
 | `ack_item` | `queue` | Mark a claimed item done |
@@ -86,7 +88,7 @@ npx skills add BloxxOnline/announcr-mcp-plugin
 
 ### Any other MCP host
 
-Point it at `https://announcr.fm/api/mcp`. Hosts without OAuth support can send the header `Authorization: Bearer <webhook-secret>` (get the secret from [announcr.fm](https://announcr.fm) → Webhooks). That path can only call `send_announcement`.
+Point it at `https://announcr.fm/api/mcp`. Hosts without OAuth support can send the header `Authorization: Bearer <webhook-secret>` (get the secret from [announcr.fm](https://announcr.fm) → Webhooks). That path can call `send_announcement` and `send_to_notes`.
 
 ## Authentication
 
@@ -98,7 +100,7 @@ After installing, the server shows as needing sign-in ("Needs login" in Cursor; 
 
 ## Privacy & data handling
 
-- An **announce-only** grant (or a webhook secret) sends only the announcement text you or your agent compose to Announcr, where it becomes speech on **your** devices, or on a native feed channel this webhook is allowed to publish to (optional `channel`; a longer message or `parts` airs as a Spotlight series). It cannot read account data, the agent queue, or reminders. This is not a public write API.
+- An **announce-only** grant (or a webhook secret) can speak through `send_announcement` and save to Notes with `send_to_notes`. It cannot read account data, the agent queue, or reminders. This is not a public write API.
 - A grant that includes **queue** can list and claim **this user's** queue items that this voice is allowed to see. Nothing else.
 - A grant that includes **reminders** can list and edit **this user's** personal reminders. Nothing else.
 - The plugin never reads your code, files, or repository.

@@ -1,6 +1,6 @@
 {
   "name": "announcr",
-  "description": "Voice announcements, an agent queue, and reminders for your agents. Hear builds and finished tasks out loud, pull work queued for this voice, and manage Announcr reminders.",
+  "description": "Voice announcements, Notes, an agent queue, and reminders for your agents. Hear builds and finished tasks out loud, save notes, pull work queued for this voice, and manage Announcr reminders.",
   "version": "1.1.0",
   "author": {
     "name": "Announcr"

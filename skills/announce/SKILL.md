@@ -139,11 +139,11 @@ The message is read aloud by text-to-speech — write for the ear:
 
 ## Related tools on the same server
 
-`send_announcement` does not read the account. Queue pull and reminder write are
+`send_announcement` does not read the account. Use `send_to_notes` when the user asks to save something to Notes. Queue pull and reminder write are
 separate tools (`list_queue`, `claim_item`, `ack_item`, `create_reminder`, and
 the other reminder tools). Use those only when the user asks, and only when the
-grant includes `queue` or `reminders`. A webhook-secret connection cannot use
-them.
+grant includes `queue` or `reminders`. A webhook-secret connection can speak
+and save notes, but cannot use queue or reminder tools.
 
 ## More
 
