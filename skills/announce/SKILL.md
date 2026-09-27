@@ -164,6 +164,17 @@ when the user asks, and only when the grant includes `queue` or `reminders`.
 A webhook-secret connection can speak, save notes, list channels, and mint a
 private room, but cannot use queue or reminder tools.
 
+Use `get_account_limits` when the user asks what plan they are on or how many
+channel slots are left, and before minting channels in bulk. When a create or
+send is refused for a limit (`channel_limit`, `plan_required`,
+`quota_exceeded`), tell the user what is full and read them `upgrade.message`
+with its link as written; never invent a billing URL. Then stop, and do not
+retry until they say it is fixed.
+
+Use `get_identity` (OAuth grants only) when the user asks who they are signed
+in as, or you need their handle. Never speak their email aloud or put it in a
+channel post.
+
 ## More
 
 - Install this skill standalone: `npx skills add BloxxOnline/announcr-mcp-plugin`
