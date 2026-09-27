@@ -15,8 +15,10 @@
 
 | Tool | Scope | Description |
 |---|---|---|
-| `send_announcement` | `announce` | Speak text through the granted webhook. Device-only max 500 characters. Optional `channel` (slug or `native:<id>`) publishes to an allowlisted native channel; a longer message (up to 8000) or `parts` (2–8 strings) airs as one Spotlight series. |
+| `send_announcement` | `announce` | Speak text through the granted webhook. Device-only max 500 characters. Optional `link` (`{url, caption?}`, http(s)) shows on the Spotlight CTA. Optional `channel` (slug or `native:<id>`) publishes to an allowlisted native channel; a longer message (up to 8000) or `parts` (2–8 strings or `{text, link}` objects) airs as one Spotlight series. |
 | `send_to_notes` | `announce` | Save a note to this user's private Notes channel. Optional `title` (max 200) is spoken; the full `message` (max 8000) stays on the card. Not Publish to my channels. Hosted `/api/mcp` only. |
+| `list_channels` | `announce` | List native channels this user belongs to. Optional `q` filters name or slug. Each row has `can_publish` and `on_this_webhook`. Hosted `/api/mcp` only. |
+| `create_private_channel` | `announce` | Reuse or mint a private feed, subscribe the owner, and allowlist it on this webhook so `send_announcement` can use the slug. Hosted `/api/mcp` only. |
 | `list_queue` | `queue` | Read-only page of this user's queue items this voice may see |
 | `claim_item` | `queue` | Exclusively claim one item. Required before you act on it |
 | `ack_item` | `queue` | Mark a claimed item done |
@@ -32,12 +34,13 @@ Example speak call:
 {
   "name": "send_announcement",
   "arguments": {
-    "message": "Deploy finished successfully."
+    "message": "Deploy finished successfully.",
+    "link": { "url": "https://example.com/deploy/42", "caption": "Open deploy" }
   }
 }
 ```
 
-Optional `channel` publishes to a room on this webhook's **Publish to my channels** list instead of the owner's devices. A short room line is one card. A longer `message` (up to 8000) or `parts` (2–8 strings) airs as one Spotlight series:
+List first with `list_channels`. If you need a series and no matching publishable slug, `create_private_channel` then pass that slug as `channel`. Optional `channel` publishes to a room on this webhook's **Publish to my channels** list instead of the owner's devices. A short room line is one card. A longer `message` (up to 8000) or `parts` (2–8 strings or `{text, link}` objects) airs as one Spotlight series. Put URLs on `link`, not in spoken text:
 
 ```json
 {
@@ -45,7 +48,7 @@ Optional `channel` publishes to a room on this webhook's **Publish to my channel
   "arguments": {
     "channel": "agent-center",
     "parts": [
-      "Paid airtime is live.",
+      { "text": "Paid airtime is live.", "link": { "url": "https://example.com/notes", "caption": "Read the notes" } },
       "The next beat starts now."
     ]
   }
@@ -88,7 +91,7 @@ npx skills add BloxxOnline/announcr-mcp-plugin
 
 ### Any other MCP host
 
-Point it at `https://announcr.fm/api/mcp`. Hosts without OAuth support can send the header `Authorization: Bearer <webhook-secret>` (get the secret from [announcr.fm](https://announcr.fm) → Webhooks). That path can call `send_announcement` and `send_to_notes`.
+Point it at `https://announcr.fm/api/mcp`. Hosts without OAuth support can send the header `Authorization: Bearer <webhook-secret>` (get the secret from [announcr.fm](https://announcr.fm) → Webhooks). That path can call `send_announcement`, `send_to_notes`, `list_channels`, and `create_private_channel`.
 
 ## Authentication
 
@@ -100,7 +103,7 @@ After installing, the server shows as needing sign-in ("Needs login" in Cursor; 
 
 ## Privacy & data handling
 
-- An **announce-only** grant (or a webhook secret) can speak through `send_announcement` and save to Notes with `send_to_notes`. It cannot read account data, the agent queue, or reminders. This is not a public write API.
+- An **announce-only** grant (or a webhook secret) can speak through `send_announcement`, save to Notes with `send_to_notes`, list channels with `list_channels`, and mint a private feed with `create_private_channel` (plan-capped). It cannot read the agent queue or reminders. This is not a public write API.
 - A grant that includes **queue** can list and claim **this user's** queue items that this voice is allowed to see. Nothing else.
 - A grant that includes **reminders** can list and edit **this user's** personal reminders. Nothing else.
 - The plugin never reads your code, files, or repository.
