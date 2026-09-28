@@ -19,6 +19,8 @@
 | `send_to_notes` | `announce` | Save a note to this user's private Notes channel. Optional `title` (max 200) is spoken; the full `message` (max 8000) stays on the card. Not Publish to my channels. Hosted `/api/mcp` only. |
 | `list_channels` | `announce` | List native channels this user belongs to. Optional `q` filters name or slug. Each row has `can_publish` and `on_this_webhook`. Hosted `/api/mcp` only. |
 | `create_private_channel` | `announce` | Reuse or mint a private feed, subscribe the owner, and allowlist it on this webhook so `send_announcement` can use the slug. Hosted `/api/mcp` only. |
+| `get_account_limits` | `announce` | Silent read of the plan, channel slots (owned, limit, remaining), voices, and spoken messages left when they are metered, plus an `upgrade` object (`needed`, `url`, `message`) to relay when something is full. Hosted `/api/mcp` only. |
+| `get_identity` | `announce` (OAuth only) | Silent read of who the owner is: `user_id`, `name`, `handle`, `email`, `sign_in_methods`, `linked_accounts`, and `connected_app`. A webhook-secret connection gets `grant_required`. Never speak the email aloud. |
 | `list_queue` | `queue` | Read-only page of this user's queue items this voice may see |
 | `claim_item` | `queue` | Exclusively claim one item. Required before you act on it |
 | `ack_item` | `queue` | Mark a claimed item done |
@@ -91,7 +93,7 @@ npx skills add BloxxOnline/announcr-mcp-plugin
 
 ### Any other MCP host
 
-Point it at `https://announcr.fm/api/mcp`. Hosts without OAuth support can send the header `Authorization: Bearer <webhook-secret>` (get the secret from [announcr.fm](https://announcr.fm) → Webhooks). That path can call `send_announcement`, `send_to_notes`, `list_channels`, and `create_private_channel`.
+Point it at `https://announcr.fm/api/mcp`. Hosts without OAuth support can send the header `Authorization: Bearer <webhook-secret>` (get the secret from [announcr.fm](https://announcr.fm) → Webhooks). That path can call `send_announcement`, `send_to_notes`, `list_channels`, `create_private_channel`, and `get_account_limits`, but not `get_identity`.
 
 ## Authentication
 
@@ -103,9 +105,11 @@ After installing, the server shows as needing sign-in ("Needs login" in Cursor; 
 
 ## Privacy & data handling
 
-- An **announce-only** grant (or a webhook secret) can speak through `send_announcement`, save to Notes with `send_to_notes`, list channels with `list_channels`, and mint a private feed with `create_private_channel` (plan-capped). It cannot read the agent queue or reminders. This is not a public write API.
-- A grant that includes **queue** can list and claim **this user's** queue items that this voice is allowed to see. Nothing else.
-- A grant that includes **reminders** can list and edit **this user's** personal reminders. Nothing else.
+- An **announce-only** grant (or a webhook secret) can speak through `send_announcement`, save to Notes with `send_to_notes`, list channels with `list_channels`, mint a private feed with `create_private_channel` (plan-capped), and read the plan's limits with `get_account_limits`. It cannot read the agent queue or reminders. This is not a public write API.
+- Any **OAuth** grant can read who you are with `get_identity`: user ID, name, handle, email, sign-in methods (Google, Apple, wallet), and the types of linked accounts (with handles for X, Telegram and Roblox). A webhook secret cannot. It never returns wallet addresses, tokens, or payment details.
+- A grant that includes **queue** can list and claim **this user's** queue items that this voice is allowed to see.
+- A grant that includes **reminders** can list and edit **this user's** personal reminders.
+- No grant can read your messages, contacts, or payment details.
 - The plugin never reads your code, files, or repository.
 - Revoke access anytime at announcr.fm → **Settings → Connected apps**, or rotate/revoke the webhook under **Webhooks**.
 
